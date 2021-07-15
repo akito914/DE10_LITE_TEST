@@ -1,0 +1,17 @@
+
+*.bak
+
+*.summary
+
+*.rpt
+
+*.done
+
+
+/db/
+
+/incremental_db/
+
+/output_files/
+
+
