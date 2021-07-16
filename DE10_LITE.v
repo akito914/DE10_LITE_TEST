@@ -70,14 +70,18 @@ module DE10_LITE(
 //=======================================================
 
 	assign HEX0[7] = 1;
-	assign HEX1 = 8'hFF;
-	assign HEX2 = 8'hFF;
+	assign HEX1[7] = 1;
+	assign HEX2[7] = 1;
 	assign HEX3 = 8'hFF;
 	assign HEX4 = 8'hFF;
 	assign HEX5 = 8'hFF;
 	
 	
 	reg [9:0] counter = 0;
+	
+	reg [1:0] key0_buf = 2'b00;
+	reg [1:0] key1_buf = 2'b00;
+	
 	
 	reg clk = 1'b0;
 	
@@ -86,17 +90,36 @@ module DE10_LITE(
 		.bin_in(counter[3:0]),
 		.seg_out(HEX0[6:0])
 	);
+	
+	seg7led segLED1 (
+		.bin_in(counter[7:4]),
+		.seg_out(HEX1[6:0])
+	);
+	
+	seg7led segLED2 (
+		.bin_in(counter[9:8]),
+		.seg_out(HEX2[6:0])
+	);
 
 //=======================================================
 //  Structural coding
 //=======================================================
 
-	always @ (posedge KEY[0] or negedge KEY[1])
+	always @(posedge MAX10_CLK1_50)
 	begin
-		if(KEY[1] == 1'b0)
-			counter = 10'd0;
-		else
+		key0_buf[0] <= KEY[0];
+		key0_buf[1] <= key0_buf[0];
+		key1_buf[0] <= KEY[1];
+		key1_buf[1] <= key1_buf[0];
+	end
+
+
+	always @ (posedge MAX10_CLK1_50)
+	begin
+		if(key0_buf[1:0] == 2'b10)
 			counter <= counter + 10'd1;
+		else if(key1_buf[1:0] == 2'b01)
+			counter <= 10'd0;
 	end
 	
 	assign LEDR = counter;
